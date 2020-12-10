@@ -12,18 +12,15 @@ my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 PROJECT_ID = int(os.environ['modal.state.slyProjectId'])
-DATASET_ID = int(os.environ['modal.state.slyDatasetId'])
+DATASET_ID = os.environ.get('modal.state.slyDatasetId')
 
+if DATASET_ID is not None:
+  DATASET_ID = int(DATASET_ID)
 
 @my_app.callback("interactive_coexistence_matrix")
 @sly.timeit
 def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_logger):
-
-    # meta_json = api.project.get_meta(PROJECT_ID)
-    # meta = sly.ProjectMeta.from_json(meta_json)
-    # if len(meta.obj_classes) == 0:
-    #     raise ValueError("No classes in project")
-
+    classes = api.project.get_meta(PROJECT_ID)['classes']
 
     if DATASET_ID is not None:
         dataset_ids = [DATASET_ID]
@@ -31,25 +28,22 @@ def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_lo
         datasets_list = api.dataset.get_list(PROJECT_ID)
         dataset_ids = [d.id for d in datasets_list]
 
+    coexist_table = {}
+
+    for cls1 in classes:
+      for cls2 in classes:
+        coexist_table[f"{cls1['title']}-{cls2['title']}"] = []
+
     for dataset_id in dataset_ids:
         anns = api.annotation.get_list(dataset_id)
-        class_names = []
-        image_ids = []
+
         for ann_info in anns:
-            class_names.append([label['classTitle'] for label in ann_info.annotation['objects']])
-            if ann_info.annotation['objects']['classTitle'] in ann_info:
-                image_ids.append(ann_info.image_id)
+            image_id = ann_info.image_id
+            classes_on_img = set([label['classTitle'] for label in ann_info.annotation['objects']])
 
-        # for img_id in image_ids:
-        #     if class_names[0][0] in ann_info.annotation['objects']:
-        #         print(class_names)
-
-        pairs = Counter(
-            chain.from_iterable(combinations(sorted(classes_per_img), 2) for classes_per_img in class_names))
-
-        for classes, pairs_counter in pairs.items():
-            ...
-            print(classes, pairs_counter, image_ids)
+            for cls_name1 in classes_on_img:
+                for cls_name2 in classes_on_img:
+                    coexist_table[f"{cls_name1}-{cls_name2}"].append(image_id)
 
     my_app.stop()
 
