@@ -3,7 +3,6 @@ import pandas as pd
 
 import supervisely_lib as sly
 
-
 my_app = sly.AppService()
 
 TEAM_ID = int(os.environ['context.teamId'])
@@ -11,28 +10,27 @@ WORKSPACE_ID = int(os.environ['context.workspaceId'])
 PROJECT_ID = int(os.environ['modal.state.slyProjectId'])
 DATASET_ID = int(os.environ.get('modal.state.slyDatasetId'))
 
+
 def group_labels(labels):
-  d = {}
-
-  for l in labels:
-    k = l['classTitle']
-
-    if k in d:
-        d[k] = True
-    else:
-        d[k] = False
-
-  return d
+    d = {}
+    for l in labels:
+        k = l['classTitle']
+        if k in d:
+            d[k] = True
+        else:
+            d[k] = False
+    return d
 
 @my_app.callback("interactive_coexistence_matrix")
 @sly.timeit
 def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_logger):
-    classes = api.project.get_meta(PROJECT_ID)['classes']
-
     if PROJECT_ID is not None:
+        classes = api.project.get_meta(PROJECT_ID)['classes']
         datasets_list = api.dataset.get_list(PROJECT_ID)
         dataset_ids = [d.id for d in datasets_list]
     else:
+        dataset_info = api.dataset.get_info_by_id(DATASET_ID)
+        classes = api.project.get_meta(dataset_info.project_id)['classes']
         dataset_ids = [DATASET_ID]
 
     co_occurrence_table = {}
@@ -62,6 +60,8 @@ def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_lo
     df = pd.DataFrame(data=pd_data, columns=columns)
     df.style.background_gradient(cmap='YlGn') \
         .set_properties(**{'font-size': '20px'})
+
+    print(df)
 
     my_app.stop()
 
