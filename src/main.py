@@ -28,14 +28,13 @@ def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_lo
     for dataset_id in datasets_ids:
         images = api.image.get_list(dataset_id)
 
-        for batch in sly.batched(images):
-            image_ids = [image_info.id for image_info in batch]
+        for image_infos in sly.batched(images):
+            image_ids = [image_info.id for image_info in image_infos]
             ann_infos = api.annotation.download_batch(dataset_id, image_ids)
 
-            for idx, ann_info in enumerate(ann_infos):
+            for image_info, ann_info in zip(image_infos, ann_infos):
                 ann_json = ann_info.annotation
                 ann = sly.Annotation.from_json(ann_json, meta)
-                image_info = batch[idx]
 
                 classes_on_image = set()
                 for label in ann.labels:
