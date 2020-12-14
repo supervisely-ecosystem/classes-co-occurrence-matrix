@@ -15,11 +15,13 @@ WORKSPACE_ID = int(os.environ['context.workspaceId'])
 PROJECT_ID = int(os.environ['modal.state.slyProjectId'])
 DATASET_ID = os.environ.get('modal.state.slyDatasetId', None)
 
+CELL_TO_IMAGES = None
 
 @my_app.callback("interactive_occurrence_matrix")
 @sly.timeit
 def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_logger):
-    global PROJECT_ID
+    global PROJECT_ID, CELL_TO_IMAGES
+
     if DATASET_ID is not None:
        datasets_ids = [DATASET_ID]
        dataset = api.dataset.get_info_by_id(DATASET_ID)
@@ -43,6 +45,7 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
     meta = sly.ProjectMeta.from_json(meta_json)
     counters = defaultdict(list)
     for dataset_id in datasets_ids:
+        dataset = api.dataset.get_info_by_id(dataset_id)
         images = api.image.get_list(dataset_id)
 
         for image_infos in sly.batched(images):
@@ -59,8 +62,9 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
 
                 all_pairs = set(frozenset(pair) for pair in itertools.product(classes_on_image, classes_on_image))
                 for p in all_pairs:
-                    counters[p].append(image_info)
+                    counters[p].append((image_info, dataset))
 
+    CELL_TO_IMAGES = defaultdict(lambda: defaultdict(list))
     pd_data = []
     class_names = [cls.name for cls in meta.obj_classes]
     columns = ["name", *class_names]
@@ -68,49 +72,33 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
         cur_row = [cls_name1]
         for cls_name2 in class_names:
             key = frozenset([cls_name1, cls_name2])
-            imgs_cnt = f'<a href="#" data-row="{cls_name1}" data-col="{cls_name2}">Website</a>'
-            #imgs_cnt = len(counters[key])
-            #imgs_cnt = f'<el-button type="text" @click="data.clickedCell=row: {cls_name1} col:{cls_name2}">{len(counters[key])}</el-button>'
+            imgs_cnt = len(counters[key])
             cur_row.append(imgs_cnt)
+
+            cell_images_data = []
+            for (info, ds_info) in counters[key]:
+                cell_images_data.append([
+                    info.id,
+                    '<a href="{0}" rel="noopener noreferrer" target="_blank">{1}</a>'
+                        .format(api.image.url(TEAM_ID, WORKSPACE_ID, project.id, info.dataset_id, info.id), info.name),
+                    ds_info.name,
+                    ds_info.id
+                ])
+
+            cell_table = {
+                "columns": ["id", "name", "dataset", "dataset id"],
+                "data": cell_images_data
+            }
+            CELL_TO_IMAGES[cls_name1][cls_name2] = cell_table
+            if cls_name2 != cls_name1:
+                CELL_TO_IMAGES[cls_name2][cls_name1] = cell_table
         pd_data.append(cur_row)
 
-
-    df = pd.DataFrame(data=pd_data, columns=columns)
-    cm = sns.light_palette("green", as_cmap=True)
-
-    def make_clickable(val):
-        return val# '<a href="#">{}</a>'.format(val)
-        index_arr = []
-        values_arr = []
-        row_name = ""
-        for index, value in val.items():
-            index_arr.append(index)
-            if index == "name":
-                values_arr.append(value)
-                row_name = value
-            else:
-                #values_arr.append("777")
-                values_arr.append(
-                   f'<a href="#" data-row="{row_name}" data-col="{index}">{value}</a>'
-                )
-        return pd.Series(values_arr, index=index_arr)
-        #return #'<a href="{}">{}</a>'.format(val, val)
-
-    #df2 = df.style.background_gradient(cmap=cm)
-
-    #tableHtml = df.style.background_gradient(cmap=cm).apply(make_clickable, axis="columns").hide_index().render()
-    ppp = df.style.background_gradient(cmap=cm).hide_index().apply(make_clickable, axis=1)#.format(make_clickable)
-    tableHtml = df.style.background_gradient(cmap=cm).hide_index().format(make_clickable).render()
-
-    # xxx = df.style.format(make_clickable).render()
     fields = [
-        {"field": "data.table", "payload": {
-            "columns": columns,
-            "data": pd_data
-        }},
+        {"field": "data.table", "payload": {"columns": columns, "data": pd_data}},
+        {"field": "data.cellToImages", "payload": CELL_TO_IMAGES},
     ]
     api.app.set_fields(task_id, fields)
-
     my_app.stop()
 
 
@@ -129,7 +117,10 @@ def main():
         "progressCurrent": 0,
         "progressTotal": 0,
         "clickedCell": "not clicked",
-        "table": {"columns": [], "data": []}
+        "table": {"columns": [], "data": []},
+        "selectedRow": {},
+        "selectedColumnName": "",
+        "cellToImages": {"columns": [], "data": []}
     }
     state = {
     }
