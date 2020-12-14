@@ -27,6 +27,7 @@ Additional comments:
 - This App might be used to find “suspicious annotations”. If annotator has confused the class, we might see it as an “unexpected value” in the cell of “coexistence matrix”
 - Gradient based colors of the matrix’ cells might be useful (will be added in next version)
 
+<img src="https://i.imgur.com/n3HhWCQ.png"/>
 
 ## How To Use
 
