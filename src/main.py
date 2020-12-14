@@ -77,7 +77,6 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
             ]
             api.app.set_fields(task_id, fields)
 
-
     CELL_TO_IMAGES = defaultdict(lambda: defaultdict(list))
     pd_data = []
     class_names = [cls.name for cls in meta.obj_classes]
