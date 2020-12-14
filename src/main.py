@@ -19,20 +19,17 @@ CELL_TO_IMAGES = None
 @sly.timeit
 def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_logger):
     global PROJECT_ID, CELL_TO_IMAGES, project
-
-    if DATASET_ID is not None:
-       datasets_ids = [DATASET_ID]
-       dataset = api.dataset.get_info_by_id(DATASET_ID)
-       if PROJECT_ID is None:
-           PROJECT_ID = dataset.project_id
-    else:
-       datasets_list = api.dataset.get_list(PROJECT_ID)
-       datasets_ids = [d.id for d in datasets_list]
-
     project = api.project.get_info_by_id(PROJECT_ID)
-    # for compatibility with old instances
-    if project.items_count is None:
-        project = project._replace(items_count=api.project.get_images_count(project.id))
+    if DATASET_ID is not None:
+        datasets_ids = [DATASET_ID]
+        dataset = api.dataset.get_info_by_id(DATASET_ID)
+        if PROJECT_ID is None:
+            PROJECT_ID = dataset.project_id
+        total_progress = api.dataset.get_info_by_id(DATASET_ID).items_count
+    else:
+        datasets_list = api.dataset.get_list(PROJECT_ID)
+        datasets_ids = [d.id for d in datasets_list]
+        total_progress = project.items_count
 
     fields = [
         {"field": "data.started", "payload": True},
@@ -41,7 +38,7 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
         {"field": "data.projectName", "payload": project.name},
         {"field": "data.projectPreviewUrl", "payload": api.image.preview_url(project.reference_image_url, 100, 100)},
         {"field": "data.progressCurrent", "payload": 0},
-        {"field": "data.progressTotal", "payload": project.items_count},
+        {"field": "data.progressTotal", "payload": total_progress},
     ]
     api.app.set_fields(task_id, fields)
 
@@ -50,7 +47,7 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
     class_names = [cls.name for cls in meta.obj_classes]
     counters = defaultdict(list)
 
-    progress = sly.Progress("Processing", project.items_count, app_logger)
+    progress = sly.Progress("Processing", total_progress, app_logger)
     for dataset_id in datasets_ids:
         dataset = api.dataset.get_info_by_id(dataset_id)
         images = api.image.get_list(dataset_id)
