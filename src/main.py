@@ -1,7 +1,4 @@
 import os
-import pandas as pd
-import seaborn as sns
-import matplotlib
 import itertools
 from collections import defaultdict
 import supervisely_lib as sly
