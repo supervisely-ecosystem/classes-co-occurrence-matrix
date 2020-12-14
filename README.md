@@ -44,4 +44,7 @@ Additional comments:
 
 **Step 5:** Stop application once you finished with it. App can be stopped from tasks list or from application UI.
 
-
+Example of the results:
+Stop from App UI  |  Stop from workspace tasks page
+:-------------------------:|:-----------------------------------:
+![](https://i.imgur.com/92gkvBy.png)  |  ![](https://i.imgur.com/EzLGXdd.png)
