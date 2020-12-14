@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/efRX1cg.png"/>
+<img src="https://i.imgur.com/fKgBq5x.png"/>
 
 # Classes Co-Occurrence Matrix
 
@@ -20,4 +20,9 @@
 
 ## Overview
 
-Illustrative Use Case: Enterprise
+App takes images project (or dataset) as an input and produces an “Interactive co-occurrence matrix” that has the following dimensions: `row_number = number of classes`, `col_number = number of classes`. Each cell of the matrix shows how often a pair of classes (say person and car) appears together (how many images that simultaneously contain at least 1 person and at least 1 car). Each cell is clickable to open corresponding images.
+
+Additional comments:
+- This app is good for data exploration since it allows to see a big picture (co-occurrence statistics) as well as to navigate to the images of interest
+- This App might be used to find “suspicious annotations”. If annotator has confused the class, we might see it as an “unexpected value” in the cell of “coexistence matrix”
+- Gradient based colors of the matrix’ cells might be useful (will be added in next version)
