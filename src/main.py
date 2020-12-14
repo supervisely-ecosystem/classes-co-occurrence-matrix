@@ -32,6 +32,11 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
        datasets_ids = [d.id for d in datasets_list]
 
     project = api.project.get_info_by_id(PROJECT_ID)
+
+    # for compatibility with old instances
+    if project.items_count is None:
+        project = project._replace(items_count=api.project.get_images_count(project.id))
+
     fields = [
         {"field": "data.projectId", "payload": project.id},
         {"field": "data.projectName", "payload": project.name},
@@ -44,6 +49,8 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
     meta_json = api.project.get_meta(PROJECT_ID)
     meta = sly.ProjectMeta.from_json(meta_json)
     counters = defaultdict(list)
+
+    progress = sly.Progress("Processing", project.items_count, app_logger)
     for dataset_id in datasets_ids:
         dataset = api.dataset.get_info_by_id(dataset_id)
         images = api.image.get_list(dataset_id)
@@ -63,6 +70,13 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
                 all_pairs = set(frozenset(pair) for pair in itertools.product(classes_on_image, classes_on_image))
                 for p in all_pairs:
                     counters[p].append((image_info, dataset))
+            progress.iters_done_report(len(image_infos))
+            fields = [
+                {"field": "data.progressCurrent", "payload": int(progress.current * 100 / progress.total)},
+                {"field": "data.progressTotal", "payload": project.items_count},
+            ]
+            api.app.set_fields(task_id, fields)
+
 
     CELL_TO_IMAGES = defaultdict(lambda: defaultdict(list))
     pd_data = []
@@ -94,9 +108,24 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
                 CELL_TO_IMAGES[cls_name2][cls_name1] = cell_table
         pd_data.append(cur_row)
 
+    # save report to file *.lnk (link to report)
+    report_name = f"{project.id}_{project.name}.lnk"
+    local_path = os.path.join(my_app.data_dir, report_name)
+    sly.fs.ensure_base_path(local_path)
+    with open(local_path, "w") as text_file:
+        print(my_app.app_url, file=text_file)
+    remote_path = f"/reports/classes-co-occurrence/{report_name}"
+    remote_path = api.file.get_free_name(TEAM_ID, remote_path)
+    report_name = sly.fs.get_file_name_with_ext(remote_path)
+    file_info = api.file.upload(TEAM_ID, local_path, remote_path)
+    report_url = api.file.get_url(file_info.id)
+
     fields = [
         {"field": "data.table", "payload": {"columns": columns, "data": pd_data}},
         {"field": "data.cellToImages", "payload": CELL_TO_IMAGES},
+        {"field": "data.savePath", "payload": remote_path},
+        {"field": "data.reportName", "payload": report_name},
+        {"field": "data.reportUrl", "payload": report_url},
     ]
     api.app.set_fields(task_id, fields)
     my_app.stop()
