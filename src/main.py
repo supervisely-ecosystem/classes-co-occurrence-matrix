@@ -149,7 +149,8 @@ def main():
         "table": {"columns": [], "data": []},
         "selectedRow": {},
         "selectedColumnName": "",
-        "cellToImages": {"columns": [], "data": []}
+        "cellToImages": {"columns": [], "data": []},
+        "debugEvent": {}
     }
     state = {
     }
