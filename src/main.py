@@ -20,12 +20,14 @@ CELL_TO_IMAGES = None
 def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_logger):
     global PROJECT_ID, CELL_TO_IMAGES, project
     project = api.project.get_info_by_id(PROJECT_ID)
+    input_name = project.name
     if DATASET_ID is not None:
         datasets_ids = [DATASET_ID]
         dataset = api.dataset.get_info_by_id(DATASET_ID)
         if PROJECT_ID is None:
             PROJECT_ID = dataset.project_id
         total_progress = api.dataset.get_info_by_id(DATASET_ID).items_count
+        input_name += f" / Dataset: {dataset.name}"
     else:
         datasets_list = api.dataset.get_list(PROJECT_ID)
         datasets_ids = [d.id for d in datasets_list]
@@ -35,7 +37,7 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
         {"field": "data.started", "payload": True},
         {"field": "data.loading", "payload": True},
         {"field": "data.projectId", "payload": project.id},
-        {"field": "data.projectName", "payload": project.name},
+        {"field": "data.projectName", "payload": input_name},
         {"field": "data.projectPreviewUrl", "payload": api.image.preview_url(project.reference_image_url, 100, 100)},
         {"field": "data.progressCurrent", "payload": 0},
         {"field": "data.progressTotal", "payload": total_progress},
