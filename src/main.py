@@ -68,33 +68,46 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
         cur_row = [cls_name1]
         for cls_name2 in class_names:
             key = frozenset([cls_name1, cls_name2])
-            imgs_cnt = '<a href="https://example.com">Website</a>'
+            imgs_cnt = f'<a href="#" data-row="{cls_name1}" data-col="{cls_name2}">Website</a>'
+            #imgs_cnt = len(counters[key])
             #imgs_cnt = f'<el-button type="text" @click="data.clickedCell=row: {cls_name1} col:{cls_name2}">{len(counters[key])}</el-button>'
             cur_row.append(imgs_cnt)
         pd_data.append(cur_row)
 
-    df = pd.DataFrame(data=pd_data, columns=columns)
-    # cm = sns.light_palette("green", as_cmap=True)
-    # html = df.style.background_gradient(cmap=cm, low=0, high=1).hide_index().set_properties(**{
-    #     'font-size': '20px',
-    #     'text-align': 'center',
-    #     'border-color': 'black'
-    # }).set_table_styles([
-    #     {
-    #         'selector': '',
-    #         'props': [('border', '2px solid green')]
-    #     }
-    # ]).render()
 
-    data = [dict(name='Google', url='<a target="_blank" href="http://www.google.com">http://www.google.com</a>'),
-            dict(name='Stackoverflow', url='<a target="_blank" href="http://stackoverflow.com">http://stackoverflow.com</a>')]
-    df2 = pd.DataFrame(data)
+    df = pd.DataFrame(data=pd_data, columns=columns)
+    cm = sns.light_palette("green", as_cmap=True)
 
     def make_clickable(val):
-        return val#'<a href="{}">{}</a>'.format(val, val)
-    xxx = df.style.format(make_clickable).render()
+        return val# '<a href="#">{}</a>'.format(val)
+        index_arr = []
+        values_arr = []
+        row_name = ""
+        for index, value in val.items():
+            index_arr.append(index)
+            if index == "name":
+                values_arr.append(value)
+                row_name = value
+            else:
+                #values_arr.append("777")
+                values_arr.append(
+                   f'<a href="#" data-row="{row_name}" data-col="{index}">{value}</a>'
+                )
+        return pd.Series(values_arr, index=index_arr)
+        #return #'<a href="{}">{}</a>'.format(val, val)
+
+    #df2 = df.style.background_gradient(cmap=cm)
+
+    #tableHtml = df.style.background_gradient(cmap=cm).apply(make_clickable, axis="columns").hide_index().render()
+    ppp = df.style.background_gradient(cmap=cm).hide_index().apply(make_clickable, axis=1)#.format(make_clickable)
+    tableHtml = df.style.background_gradient(cmap=cm).hide_index().format(make_clickable).render()
+
+    # xxx = df.style.format(make_clickable).render()
     fields = [
-        {"field": "data.htmlTable", "payload": xxx},
+        {"field": "data.table", "payload": {
+            "columns": columns,
+            "data": pd_data
+        }},
     ]
     api.app.set_fields(task_id, fields)
 
@@ -115,12 +128,13 @@ def main():
         "projectPreviewUrl": "",
         "progressCurrent": 0,
         "progressTotal": 0,
-        "clickedCell": "not clicked"
+        "clickedCell": "not clicked",
+        "table": {"columns": [], "data": []}
     }
     state = {
     }
 
-    my_app.run(initial_events=[{"command": "interactive_occurrence_matrix"}])
+    my_app.run(data=data, state=state, initial_events=[{"command": "interactive_occurrence_matrix"}])
 
 
 if __name__ == "__main__":

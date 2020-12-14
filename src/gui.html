@@ -27,7 +27,18 @@
               subtitle="Click on the numbers to see the list of images"
               style="min-height: 200px;"
     >
-        <div class="mt5" v-html="data.htmlTable"></div>
-        <div>{{data.clickedCell}}</div>
+<!--        <div-->
+<!--                class="mt5"-->
+<!--                v-html="data.htmlTable"-->
+<!--                @click="data.clickedCell = {-->
+<!--                    row: $event.target.getAttribute('data-row'),-->
+<!--                    col: $event.target.getAttribute('data-col'),-->
+<!--                }"-->
+<!--        ></div>-->
+        <sly-table :options="{perPage: 50, pageSizes: [10, 20, 50, 100], fixColumns: 1}"
+                   :content="data.table">
+        </sly-table>
+<!--        @input="state.user2selectedRowData[context.userId] = $event.selectedRowData"-->
+        <pre>{{data.clickedCell}}</pre>
     </sly-card>
 </div>
