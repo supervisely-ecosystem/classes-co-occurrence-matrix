@@ -1,2 +1,2 @@
-supervisely==6.1.25
+supervisely==6.1.30
 seaborn==0.11.0

@@ -4,6 +4,8 @@ import seaborn as sns
 import itertools
 from collections import defaultdict
 
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html#Builtin-styles
+
 import supervisely_lib as sly
 
 my_app = sly.AppService()
@@ -11,16 +13,31 @@ my_app = sly.AppService()
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 PROJECT_ID = int(os.environ['modal.state.slyProjectId'])
-DATASET_ID = int(os.environ.get('modal.state.slyDatasetId'))
+DATASET_ID = os.environ.get('modal.state.slyDatasetId', None)
 
-@my_app.callback("interactive_coexistence_matrix")
+
+@my_app.callback("interactive_occurrence_matrix")
 @sly.timeit
-def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_logger):
+def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_logger):
+    global PROJECT_ID
     if DATASET_ID is not None:
        datasets_ids = [DATASET_ID]
+       dataset = api.dataset.get_info_by_id(DATASET_ID)
+       if PROJECT_ID is None:
+           PROJECT_ID = dataset.project_id
     else:
        datasets_list = api.dataset.get_list(PROJECT_ID)
        datasets_ids = [d.id for d in datasets_list]
+
+    project = api.project.get_info_by_id(PROJECT_ID)
+    fields = [
+        {"field": "data.projectId", "payload": project.id},
+        {"field": "data.projectName", "payload": project.name},
+        {"field": "data.projectPreviewUrl", "payload": api.image.preview_url(project.reference_image_url, 100, 100)},
+        {"field": "data.progressCurrent", "payload": 0},
+        {"field": "data.progressTotal", "payload": project.items_count},
+    ]
+    api.app.set_fields(task_id, fields)
 
     meta_json = api.project.get_meta(PROJECT_ID)
     meta = sly.ProjectMeta.from_json(meta_json)
@@ -49,29 +66,61 @@ def interactive_coexistence_matrix(api: sly.Api, task_id, context, state, app_lo
     columns = ["name", *class_names]
     for cls_name1 in class_names:
         cur_row = [cls_name1]
-
         for cls_name2 in class_names:
             key = frozenset([cls_name1, cls_name2])
-            imgs_cnt = len(counters[key])
+            imgs_cnt = '<a href="https://example.com">Website</a>'
+            #imgs_cnt = f'<el-button type="text" @click="data.clickedCell=row: {cls_name1} col:{cls_name2}">{len(counters[key])}</el-button>'
             cur_row.append(imgs_cnt)
         pd_data.append(cur_row)
 
     df = pd.DataFrame(data=pd_data, columns=columns)
-    cm = sns.light_palette("green", as_cmap=True)
-    html = df.style.background_gradient(cmap=cm, low=0, high=1).hide_index().set_properties(**{'font-size': '20px', 'text-align': 'center',
-                       'border-color': 'black'}).set_table_styles([{'selector': '',
-                        'props' : [('border',
-                                    '2px solid green')]}]).render()
+    # cm = sns.light_palette("green", as_cmap=True)
+    # html = df.style.background_gradient(cmap=cm, low=0, high=1).hide_index().set_properties(**{
+    #     'font-size': '20px',
+    #     'text-align': 'center',
+    #     'border-color': 'black'
+    # }).set_table_styles([
+    #     {
+    #         'selector': '',
+    #         'props': [('border', '2px solid green')]
+    #     }
+    # ]).render()
+
+    data = [dict(name='Google', url='<a target="_blank" href="http://www.google.com">http://www.google.com</a>'),
+            dict(name='Stackoverflow', url='<a target="_blank" href="http://stackoverflow.com">http://stackoverflow.com</a>')]
+    df2 = pd.DataFrame(data)
+
+    def make_clickable(val):
+        return val#'<a href="{}">{}</a>'.format(val, val)
+    xxx = df.style.format(make_clickable).render()
+    fields = [
+        {"field": "data.htmlTable", "payload": xxx},
+    ]
+    api.app.set_fields(task_id, fields)
 
     my_app.stop()
 
 
 def main():
     sly.logger.info("Script arguments", extra={
-        "PROJECT_ID": PROJECT_ID
+        "TEAM_ID": TEAM_ID,
+        "WORKSPACE_ID": WORKSPACE_ID,
+        "PROJECT_ID": PROJECT_ID,
+        "DATASET_ID": DATASET_ID
     })
 
-    my_app.run(initial_events=[{"command": "interactive_coexistence_matrix"}])
+    data = {
+        "projectId": "",
+        "projectName": "",
+        "projectPreviewUrl": "",
+        "progressCurrent": 0,
+        "progressTotal": 0,
+        "clickedCell": "not clicked"
+    }
+    state = {
+    }
+
+    my_app.run(initial_events=[{"command": "interactive_occurrence_matrix"}])
 
 
 if __name__ == "__main__":

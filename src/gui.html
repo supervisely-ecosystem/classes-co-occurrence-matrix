@@ -1,0 +1,33 @@
+<div>
+    <div class="fflex" style="align-items: stretch">
+        <sly-card title="Input" style="width: 50%" class="mr15">
+            <sly-field title="" description="Images project">
+                <a slot="title" target="_blank"
+                   :href="`/projects/${data.projectId}/datasets`">{{data.projectName}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
+            </sly-field>
+        </sly-card>
+        <sly-card title="Output" style="width: 50%;">
+            <div v-if="data.started === true && data.progress !== 100">
+                <div>Processing: {{data.progressCurrent}} / {{data.progressTotal}}</div>
+                <el-progress :percentage="data.progress"></el-progress>
+            </div>
+            <sly-field v-if="data.progress === 100" title=""
+                       description="Report has been successfully saved">
+                <a slot="title" target="_blank" :href="`${data.reportUrl}`">{{data.reportName}}</a>
+                <sly-icon slot="icon" :options="{ color: '#33c94c', bgColor: '#d9f7e4', rounded: false }">
+                    <i class="zmdi zmdi-receipt"></i>
+                </sly-icon>
+            </sly-field>
+        </sly-card>
+    </div>
+
+    <sly-card class="mt15"
+              title="Interactive classes co-occurrence matrix"
+              subtitle="Click on the numbers to see the list of images"
+              style="min-height: 200px;"
+    >
+        <div class="mt5" v-html="data.htmlTable"></div>
+        <div>{{data.clickedCell}}</div>
+    </sly-card>
+</div>
