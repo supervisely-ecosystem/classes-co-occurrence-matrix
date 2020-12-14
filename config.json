@@ -12,7 +12,6 @@
   "gui_template": "src/gui.html",
   "task_location": "workspace_tasks",
   "isolate": true,
-  "headless": true,
   "icon": "https://img.icons8.com/color/96/000000/attract-customers.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
