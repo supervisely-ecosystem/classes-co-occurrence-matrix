@@ -27,19 +27,21 @@
               subtitle="Click on the numbers to see the list of images"
               style="min-height: 200px;"
     >
-        <sly-table :options="{perPage: 50, pageSizes: [10, 20, 50, 100], fixColumns: 1}"
+        <sly-table v-loading="data.loading"
+                   element-loading-text="Will be calculated after all images are processed"
+                   :options="{perPage: 50, pageSizes: [10, 20, 50, 100], fixColumns: 1}"
                    :content="data.table"
-                   @input="data.selection = $event"
+                   @input="state.selection = $event; command('show_images')"
         ></sly-table>
     </sly-card>
-    <pre>{{data.selection}}</pre>
-<!--    <sly-card class="mt15"-->
-<!--              title="Images"-->
-<!--              subtitle="Select cell in co-occurrence matrix to see corresponding images"-->
-<!--    >-->
-<!--        <sly-table v-if="data.selection.selectedColumnData"-->
-<!--                   :options="{perPage: 50, pageSizes: [10, 20, 50, 100], fixColumns: 2}"-->
-<!--                   :content='data.cellToImages[data.selection.selectedRowData["name"]][data.selection.selectedColumnData]'-->
-<!--        ></sly-table>-->
-<!--    </sly-card>-->
+<!--    <pre>{{data.selection}}</pre>-->
+    <sly-card class="mt15"
+              title="Images"
+              subtitle="Select cell in co-occurrence matrix to see corresponding images"
+    >
+        <sly-table v-if="state.selection.selectedColumnName"
+                   :options="{perPage: 50, pageSizes: [10, 20, 50, 100], fixColumns: 2}"
+                   :content='data.cellToImages'
+        ></sly-table>
+    </sly-card>
 </div>
