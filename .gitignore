@@ -1,3 +1,4 @@
 /secret_debug.env
 .idea
 venv
+supervisely_lib
