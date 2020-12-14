@@ -26,3 +26,4 @@ Additional comments:
 - This app is good for data exploration since it allows to see a big picture (co-occurrence statistics) as well as to navigate to the images of interest
 - This App might be used to find “suspicious annotations”. If annotator has confused the class, we might see it as an “unexpected value” in the cell of “coexistence matrix”
 - Gradient based colors of the matrix’ cells might be useful (will be added in next version)
+
