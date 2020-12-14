@@ -27,3 +27,21 @@ Additional comments:
 - This App might be used to find “suspicious annotations”. If annotator has confused the class, we might see it as an “unexpected value” in the cell of “coexistence matrix”
 - Gradient based colors of the matrix’ cells might be useful (will be added in next version)
 
+
+## How To Use
+
+**Step 1:** Add app to your team from Ecosystem if it is not there
+
+**Step 2:** Run app from the context menu of images project or dataset: `context menu` -> `Reports` -> `Classes Co-Occurrence Matrix`
+
+<img src="https://i.imgur.com/emHci7n.png" width="500px"/>
+
+**Step 3:** Wait until the app is started, press `Open` button in `Workspace tasks`. You don't need to wait untill all images are processed: if open button is enabled then click it.
+
+<img src="https://i.imgur.com/INasHFk.png"/>
+
+**Step 4:** App saves link to report to team files: `/reports/classes-co-occurrence/<project id>_<project_name>.lnk`. Link to generated report also available in task output column. 
+
+**Step 5:** Stop application once you finished with it. App can be stopped from tasks list or from application UI.
+
+
