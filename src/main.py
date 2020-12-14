@@ -94,6 +94,7 @@ def interactive_occurrence_matrix(api: sly.Api, task_id, context, state, app_log
     report_name = sly.fs.get_file_name_with_ext(remote_path)
     file_info = api.file.upload(TEAM_ID, local_path, remote_path)
     report_url = api.file.get_url(file_info.id)
+    api.task.set_output_report(task_id, file_info.id, file_info.name)
 
     fields = [
         {"field": "data.started", "payload": False},
