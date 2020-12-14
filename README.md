@@ -41,9 +41,12 @@ Additional comments:
 
 <img src="https://i.imgur.com/INasHFk.png"/>
 
-**Step 4:** App saves link to report to team files: `/reports/classes-co-occurrence/<project id>_<project_name>.lnk`. Link to generated report also available in task output column. 
 
-**Step 5:** Stop application once you finished with it. App can be stopped from tasks list or from application UI.
+**Step 4:** Explore you data with interactive table: click on cells to access corresponding images and open them in labeling UI.
+
+**Step 5:** App saves link to report to team files: `/reports/classes-co-occurrence/<project id>_<project_name>.lnk`. Link to generated report also available in task output column. 
+
+**Step 6:** Stop application once you finished with it. App can be stopped from tasks list or from application UI.
 
 Example of the results:
 Stop from App UI  |  Stop from workspace tasks page
