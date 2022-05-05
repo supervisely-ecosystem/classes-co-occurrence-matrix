@@ -15,7 +15,11 @@
   "icon": "https://img.icons8.com/color/96/000000/attract-customers.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
-    "target": ["images_project", "images_dataset"],
+    "target": [
+      "images_project",
+      "images_dataset"
+    ],
     "context_root": "Report"
-  }
+  },
+  "poster": "https://i.imgur.com/fKgBq5x.png"
 }
