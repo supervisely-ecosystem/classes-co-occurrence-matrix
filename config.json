@@ -6,7 +6,7 @@
     "visualization",
     "exploration",
     "statistics",
-    "visualization-stats"
+    "visualization stats"
   ],
   "description": "Explore images for every combination of classes pairs in co-occurrence table",
   "docker_image": "supervisely/base-py-sdk:6.23.1",
