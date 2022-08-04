@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/fKgBq5x.png"/>
+<img src="https://user-images.githubusercontent.com/48245050/182382092-0b6a7eb8-b390-4e03-af0c-da801cbf39c8.png"/>
 
 # Classes Co-Occurrence Matrix
 
