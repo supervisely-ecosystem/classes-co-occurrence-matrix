@@ -1,30 +1,30 @@
 {
-  "name": "Classes co-occurrence matrix",
-  "type": "app",
-  "categories": [
-    "images",
-    "visualization",
-    "exploration",
-    "statistics",
-    "visualization stats"
-  ],
-  "description": "Explore images for every combination of classes pairs in co-occurrence table",
-  "docker_image": "supervisely/base-py-sdk:6.35.0",
-  "instance_version": "6.4.57",
-  "main_script": "src/main.py",
-  "modal_template": "src/modal.html",
-  "modal_template_state": {},
-  "gui_template": "src/gui.html",
-  "task_location": "workspace_tasks",
-  "isolate": true,
-  "icon": "https://img.icons8.com/color/96/000000/attract-customers.png",
-  "icon_background": "#FFFFFF",
-  "context_menu": {
-    "target": [
-      "images_project",
-      "images_dataset"
+    "name": "Classes co-occurrence matrix",
+    "type": "app",
+    "categories": [
+        "images",
+        "visualization",
+        "exploration",
+        "statistics",
+        "visualization stats"
     ],
-    "context_root": "Report"
-  },
-  "poster": "https://user-images.githubusercontent.com/48245050/182382092-0b6a7eb8-b390-4e03-af0c-da801cbf39c8.png"
+    "description": "Explore images for every combination of classes pairs in co-occurrence table",
+    "docker_image": "supervisely/visualization-stats:0.0.1",
+    "instance_version": "6.4.57",
+    "main_script": "src/main.py",
+    "modal_template": "src/modal.html",
+    "modal_template_state": {},
+    "gui_template": "src/gui.html",
+    "task_location": "workspace_tasks",
+    "isolate": true,
+    "icon": "https://img.icons8.com/color/96/000000/attract-customers.png",
+    "icon_background": "#FFFFFF",
+    "context_menu": {
+        "target": [
+            "images_project",
+            "images_dataset"
+        ],
+        "context_root": "Report"
+    },
+    "poster": "https://user-images.githubusercontent.com/48245050/182382092-0b6a7eb8-b390-4e03-af0c-da801cbf39c8.png"
 }
