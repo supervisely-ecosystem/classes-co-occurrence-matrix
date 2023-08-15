@@ -118,6 +118,10 @@ def show_images(api: sly.Api, task_id, context, state, app_logger):
     else:
         return
     key = frozenset([class1, class2])
+    
+    bad_path = "/bad/path/not_exists.tar"
+
+    api.file.get_info_by_path(TEAM_ID, bad_path).sizeb
 
     images = CELL_TO_IMAGES[key]
     cell_images_data = []
