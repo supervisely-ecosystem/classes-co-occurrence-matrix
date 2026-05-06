@@ -10,7 +10,7 @@
     ],
     "description": "Explore images for every combination of classes pairs in co-occurrence table",
     "docker_image": "supervisely/visualization-stats:6.73.564",
-    "instance_version": "6.4.57",
+    "instance_version": "6.15.60",
     "main_script": "src/main.py",
     "modal_template": "src/modal.html",
     "modal_template_state": {},
